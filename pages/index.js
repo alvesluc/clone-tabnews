@@ -1,4 +1,4 @@
-function Home() {
+export default function Home() {
   return (
     <p
       style={{
@@ -13,5 +13,3 @@ function Home() {
     </p>
   );
 }
-
-export default Home;
