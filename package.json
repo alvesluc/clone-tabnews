@@ -1,25 +1,31 @@
 {
   "name": "clone-tabnews",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run services:detached && next dev",
+    "build": "next build",
     "lint:check": "prettier --check .",
     "lint:fix": "prettier --write .",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "services:up": "docker compose -f infra/compose.yaml up",
+    "services:down": "docker compose -f infra/compose.yaml down",
+    "services:stop": "docker compose -f infra/compose.yaml stop",
+    "services:detached": "docker compose -f infra/compose.yaml up -d",
+    "services:recreate": "docker compose -f infra/compose.yaml up -d --force-recrate"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Lucas Alves",
+  "license": "MIT",
   "dependencies": {
     "next": "^13.1.6",
+    "pg": "^8.11.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.12",
     "jest": "^29.6.2",
-    "prettier": "^3.3.2"
+    "prettier": "^3.0.3"
   }
 }
