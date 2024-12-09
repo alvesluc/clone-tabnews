@@ -1,6 +1,6 @@
 import database from "infra/database";
 
-async function status(request, response) {
+export default async function status(request, response) {
   const updatedAt = new Date().toISOString();
 
   response.status(200).json({
@@ -37,5 +37,3 @@ async function getDatabaseOpenConnections() {
 
   return openConnections.rows[0].count;
 }
-
-export default status;
