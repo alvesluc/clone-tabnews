@@ -29,8 +29,8 @@ function showSpinningLoading() {
 
 function logSuccess() {
   process.stdout.write("\r");
-  console.log("\n🟢 Postgres is ready and accepting connections.");
+  console.log("\n🟢 Postgres is ready and accepting connections!\n");
 }
 
-console.log("\n🔴 Waiting for Postgres to accept connections");
+console.log("\n🔴 Waiting for Postgres to accept connections.");
 checkPostgres();
