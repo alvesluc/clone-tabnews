@@ -16,7 +16,7 @@
     "services:down": "docker compose -f infra/compose.yaml down",
     "services:detached": "docker compose -f infra/compose.yaml up -d",
     "services:recreate": "docker compose -f infra/compose.yaml up -d --force-recrate",
-    "test": "npm run initialize && concurrently -n next,jest --hide next -k --success command-jest 'next dev' 'jest --runInBand'",
+    "test": "npm run initialize && concurrently -n next,jest --hide next -k --success command-jest \"next dev\" \"jest --runInBand\"",
     "test:watch": "jest --watchAll --runInBand",
     "wait-for-postgres": "node infra/scripts/wait-for-postgres.js"
   },

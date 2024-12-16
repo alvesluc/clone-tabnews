@@ -23,21 +23,25 @@ async function waitForAllServices() {
    * @throws {Error} Throws an error if all retry attempts fail.
    */
   async function waitForWebServer() {
-    return retry(fetchStatusPage, { retries: 100 });
+    return retry(fetchStatusPage, { retries: 100, maxTimeout: 1_000 });
 
     /**
      * Fetches the status page of the web server.
      *
-     * This function attempts to retrieve and parse the status page from
-     * the web server at `http://localhost:3000/api/v1/status`.
+     * It checks if the server responds with an HTTP 200 status code, indicating
+     * that the server is available.
      *
      * @async
-     * @returns {Promise<void>} Resolves if the status page is fetched and parsed successfully.
-     * @throws {Error} Throws an error if the fetch operation fails.
+     * @returns {Promise<void>} Resolves if the status page is fetched successfully
+     * and the response status is 200.
+     * @throws {Error} Throws an error if the server does not respond with a 200 status.
      */
     async function fetchStatusPage() {
       const response = await fetch("http://localhost:3000/api/v1/status");
-      await response.json();
+
+      if (response.status !== 200) {
+        throw new Error("Server is not ready.");
+      }
     }
   }
 }
