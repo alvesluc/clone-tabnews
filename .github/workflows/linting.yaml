@@ -1,10 +1,10 @@
-name: Automated Tests
+name: Linting
 
 on: pull_request
 
 jobs:
-  jest:
-    name: Jest Ubuntu
+  prettier:
+    name: Prettier
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -14,4 +14,5 @@ jobs:
         with:
           node-version: lts/hydrogen
       - run: npm ci
-      - run: npm test
+      - name: Check lint
+        run: npm run lint:prettier:check
