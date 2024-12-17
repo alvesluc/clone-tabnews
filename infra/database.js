@@ -94,4 +94,6 @@ function isProduction() {
   return process.env.NODE_ENV === "production";
 }
 
-export default { getNewClient, query };
+const database = { getNewClient, query };
+
+export default database;
