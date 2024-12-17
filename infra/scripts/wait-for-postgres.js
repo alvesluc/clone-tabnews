@@ -8,7 +8,7 @@ function checkPostgres() {
    * @param {string} stdout - The standard output from the command.
    * @param {string} stderr - The standard error from the command.
    */
-  function handleReturn(error, stdout, stderr) {
+  function handleReturn(_, stdout) {
     if (stdout.search("accepting connections") === -1) {
       showSpinningLoading();
       setTimeout(checkPostgres, 100);
