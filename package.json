@@ -20,7 +20,8 @@
     "test": "npm run initialize && concurrently -n next,jest --hide next -k --success command-jest \"next dev\" \"jest --runInBand\"",
     "test:watch": "jest --watchAll --runInBand",
     "wait-for-postgres": "node infra/scripts/wait-for-postgres.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "commit": "cz"
   },
   "author": "Lucas Alves",
   "license": "MIT",
@@ -39,7 +40,9 @@
     "@commitlint/config-conventional": "^19.2.2",
     "@types/jest": "^29.5.14",
     "@types/pg": "^8.11.10",
+    "commitizen": "^4.3.0",
     "concurrently": "^8.2.2",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.4",
     "eslint-config-prettier": "^9.1.0",
@@ -47,5 +50,10 @@
     "husky": "^9.1.4",
     "jest": "^29.6.2",
     "prettier": "^3.0.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
