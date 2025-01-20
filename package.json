@@ -9,7 +9,7 @@
     "pretest": "watchman watch-del-all",
     "test": "npm run initialize && concurrently -n next,jest --hide next -k --success command-jest \"next dev\" \"jest --runInBand\"",
     "posttest": "npm run services:stop",
-    "test:watch": "jest --watchAll --runInBand",
+    "test:watch": "jest --watchAll --runInBand --verbose",
     "commit": "cz",
     "prepare": "husky",
     "initialize": "npm run services:detached && npm run services:wait:database",
