@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "next build",
     "dev": "npm run initialize && npm run migrations:up && next dev",
     "postdev": "npm run services:stop",
     "test": "npm run initialize && concurrently -n next,jest --hide next -k --success command-jest \"next dev\" \"jest --runInBand\"",
