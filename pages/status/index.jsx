@@ -19,7 +19,7 @@ const REFRESH_INTERVAL = 5000;
 
 async function fetchAPI(key) {
   const response = await fetch(key);
-  
+
   if (!response.ok) {
     const errorData = await response.json();
     throw errorData;
