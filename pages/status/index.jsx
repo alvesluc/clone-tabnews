@@ -1,22 +1,38 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { RawDataDialog } from "@/components/status/RawDataDialog";
+import { StatusCard } from "@/components/status/StatusCard";
 import { Button } from "@/components/ui/button";
-import { Info, RefreshCcw, Home } from "lucide-react";
-import useSWR from "swr";
-import Link from "next/link";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Home, Info, RefreshCcw } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { StatusCard } from "@/components/status/StatusCard";
-import { RawDataDialog } from "@/components/status/RawDataDialog";
+import { useCallback, useEffect, useState } from "react";
+import useSWR from "swr";
+
+/**
+ * @typedef {Object} Status
+ * @property {string} updated_at
+ * @property {Dependencies} dependencies */
+
+/**
+ * @typedef {Object} Dependencies
+ * @property {Database} database */
+
+/**
+ * @typedef {Object} Database
+ * @property {string} version
+ * @property {number} max_connections
+ * @property {number} open_connections */
 
 const REFRESH_INTERVAL = 5000;
 
+/** @return {Promise<Status>} */
 async function fetchAPI(key) {
   const response = await fetch(key);
 
@@ -42,36 +58,45 @@ export default function StatusPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleKeyDown = useCallback(
+    /** @param {KeyboardEvent} event */
     (event) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === "/") {
-        event.preventDefault();
-        router.push("/");
-      }
-      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
-        event.preventDefault();
-        setIsDialogOpen((prev) => !prev);
+      if (isShortcutKey) {
+        const shortcutFromKeyCombination = keysShortcut[event.key];
+        if (!shortcutFromKeyCombination) return;
+
+        return shortcutFromKeyCombination(event);
       }
     },
     [router],
   );
 
+  /**
+   * @param {KeyboardEvent} event
+   * @returns {boolean} */
+  const isShortcutKey = (event) => event.metaKey || event.ctrlKey;
+
+  /** @param {KeyboardEvent} event */
+  const handleNavigateHome = (event) => {
+    event.preventDefault();
+    router.push("/");
+  };
+
+  /** @param {KeyboardEvent} event */
+  const toggleRawDataDialog = (event) => {
+    event.preventDefault();
+    setIsDialogOpen((prev) => !prev);
+  };
+
+  /** @type {Record<string, (event: KeyboardEvent) => void>} */
+  const keysShortcut = {
+    "/": handleNavigateHome,
+    k: toggleRawDataDialog,
+  };
+
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      timeZoneName: "short",
-    });
-  };
 
   if (error) {
     return (
@@ -122,21 +147,14 @@ export default function StatusPage() {
             </Tooltip>
           </TooltipProvider>
         </p>
-
-        <StatusCard
-          status={status}
-          isLoading={isLoading}
-          formatDate={formatDate}
-        />
-
+        <StatusCard status={status} isLoading={isLoading} />
         <div className="mt-6 flex justify-between">
           <RawDataDialog
             status={status}
             isOpen={isDialogOpen}
             setIsOpen={setIsDialogOpen}
           />
-
-          <Link href="/">
+          <Link href="/" tabindex="-1">
             <Button variant="outline" className="flex items-center">
               <Home className="mr-1 h-4 w-4" />
               Back to Home{" "}

@@ -1,10 +1,45 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Clock, Database } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Clock, Database } from "lucide-react";
 
-export function StatusCard({ status, isLoading, formatDate }) {
+/**
+ * @typedef {Object} Status
+ * @property {string} updated_at
+ * @property {Dependencies} dependencies */
+
+/**
+ * @typedef {Object} Dependencies
+ * @property {Database} database */
+
+/**
+ * @typedef {Object} Database
+ * @property {string} version
+ * @property {number} max_connections
+ * @property {number} open_connections */
+
+/**
+ * @param {Object} props
+ * @param {Status} props.status
+ * @param {boolean} props.isLoading */
+export function StatusCard({ status, isLoading }) {
+  /**
+   * @param {string} dateString - The date string to be formatted.
+   * @returns {string} The formatted date string. */
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      timeZoneName: "short",
+    });
+  };
+
   return (
     <>
       <Card className="mb-6">
