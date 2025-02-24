@@ -1,18 +1,28 @@
 import database from "infra/database";
+import { InternalServerError } from "@/infra/errors";
 
 export default async function status(request, response) {
-  const updatedAt = new Date().toISOString();
+  try {
+    const updatedAt = new Date().toISOString();
 
-  response.status(200).json({
-    updated_at: updatedAt,
-    dependencies: {
-      database: {
-        version: await getDatabaseVersion(),
-        max_connections: await getDatabaseMaxConnections(),
-        open_connections: await getDatabaseOpenConnections(),
+    response.status(200).json({
+      updated_at: updatedAt,
+      dependencies: {
+        database: {
+          version: await getDatabaseVersion(),
+          max_connections: await getDatabaseMaxConnections(),
+          open_connections: await getDatabaseOpenConnections(),
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    const publicError = new InternalServerError({ cause: error });
+
+    console.log("\n Error on /api/v1/status controller:");
+    console.error(publicError);
+
+    response.status(500).json(publicError);
+  }
 }
 
 /**
