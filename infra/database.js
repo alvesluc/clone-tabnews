@@ -25,9 +25,10 @@ async function query(queryObject) {
 
     return result;
   } catch (error) {
+    console.log("\n Error on database.js:");
     console.error(error);
   } finally {
-    await client.end();
+    await client?.end();
   }
 }
 
