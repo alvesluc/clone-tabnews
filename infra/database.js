@@ -1,4 +1,5 @@
 import { Client } from "pg";
+import { ServiceError } from "@/infra/errors";
 
 /**
  * Executes a query on the PostgreSQL database.
@@ -25,8 +26,11 @@ async function query(queryObject) {
 
     return result;
   } catch (error) {
-    console.log("\n Error on database.js:");
-    console.error(error);
+    const serviceError = new ServiceError({
+      message: "Database connection or query failed.",
+      cause: error,
+    });
+    throw serviceError;
   } finally {
     await client?.end();
   }
