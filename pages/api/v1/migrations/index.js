@@ -1,46 +1,55 @@
+import { createRouter } from "next-connect";
 import migrationRunner from "node-pg-migrate";
 import { resolve } from "node:path";
 import database from "infra/database";
+import controller from "@/infra/controller";
+
+const router = createRouter();
+
+router.get(getHandler);
+router.post(postHandler);
 
 /**
  * @param {import("next").NextApiRequest} request - The incoming HTTP request.
  * @param {import("next").NextApiResponse} response - The HTTP response object.
  */
-export default async function migrations(request, response) {
-  if (isInvalidRequest(request)) {
-    return response.status(405).json({
-      error: `Method ${request.method} not allowed`,
-    });
-  }
-
+async function getHandler(request, response) {
   /** @type {import("pg").Client} */
   let dbClient;
 
   try {
     dbClient = await database.getNewClient();
 
-    if (request.method === "GET") {
-      const pendingMigrations = await migrationRunner(
-        createMigrationOptions(dbClient),
-      );
+    const pendingMigrations = await migrationRunner(
+      createMigrationOptions(dbClient),
+    );
 
-      return response.status(200).json(pendingMigrations);
+    return response.status(200).json(pendingMigrations);
+  } finally {
+    await dbClient.end();
+  }
+}
+
+/**
+ * @param {import("next").NextApiRequest} request - The incoming HTTP request.
+ * @param {import("next").NextApiResponse} response - The HTTP response object.
+ */
+async function postHandler(request, response) {
+  /** @type {import("pg").Client} */
+  let dbClient;
+
+  try {
+    dbClient = await database.getNewClient();
+
+    const migratedMigrations = await migrationRunner(
+      createMigrationOptions(dbClient, { dryRun: false }),
+    );
+
+    if (migratedMigrations.length > 0) {
+      return response.status(201).json(migratedMigrations);
     }
 
-    if (request.method === "POST") {
-      const migratedMigrations = await migrationRunner(
-        createMigrationOptions(dbClient, { dryRun: false }),
-      );
-
-      if (migratedMigrations.length > 0) {
-        return response.status(201).json(migratedMigrations);
-      }
-
-      return response.status(200).json(migratedMigrations);
-    }
-  } catch (error) {
-    console.error(error);
-    throw error;
+    return response.status(200).json(migratedMigrations);
   } finally {
     await dbClient.end();
   }
@@ -65,14 +74,4 @@ function createMigrationOptions(dbClient, { dryRun = true } = {}) {
   };
 }
 
-/**
- * Determines if the incoming request has an invalid HTTP method.
- *
- * @param {import("next").NextApiRequest} request - The HTTP request object.
- * @returns {boolean} `true` if the request method is invalid, `false` otherwise.
- */
-function isInvalidRequest(request) {
-  const validRequestMethods = ["GET", "POST"];
-
-  return !validRequestMethods.includes(request.method);
-}
+export default router.handler(controller.errorHandlers);
