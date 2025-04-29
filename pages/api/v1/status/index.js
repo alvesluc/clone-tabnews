@@ -1,29 +1,27 @@
+import { createRouter } from "next-connect";
 import database from "infra/database";
-import { InternalServerError } from "@/infra/errors";
+import controller from "@/infra/controller";
 
-export default async function status(request, response) {
-  try {
-    const updatedAt = new Date().toISOString();
+const router = createRouter();
 
-    response.status(200).json({
-      updated_at: updatedAt,
-      dependencies: {
-        database: {
-          version: await getDatabaseVersion(),
-          max_connections: await getDatabaseMaxConnections(),
-          open_connections: await getDatabaseOpenConnections(),
-        },
+router.get(getHandler);
+
+async function getHandler(request, response) {
+  const updatedAt = new Date().toISOString();
+
+  response.status(200).json({
+    updated_at: updatedAt,
+    dependencies: {
+      database: {
+        version: await getDatabaseVersion(),
+        max_connections: await getDatabaseMaxConnections(),
+        open_connections: await getDatabaseOpenConnections(),
       },
-    });
-  } catch (error) {
-    const publicError = new InternalServerError({ cause: error });
-
-    console.log("\n Error on /api/v1/status controller:");
-    console.error(publicError);
-
-    response.status(500).json(publicError);
-  }
+    },
+  });
 }
+
+export default router.handler(controller.errorHandlers);
 
 /**
  * Retrieves the version of the PostgreSQL server.
