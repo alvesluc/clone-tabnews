@@ -1,4 +1,3 @@
-import database from "infra/database";
 import orchestrator from "tests/orchestrator";
 import { version as uuidVersion } from "uuid";
 
@@ -40,6 +39,7 @@ describe("POST /api/v1/users", () => {
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
     });
+
     test("With duplicated 'email'", async () => {
       const firstResponse = await fetch("http://localhost:3000/api/v1/users", {
         method: "POST",
