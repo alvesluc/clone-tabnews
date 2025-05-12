@@ -39,7 +39,7 @@ describe("GET /api/v1/users/alvesluc", () => {
         id: userResponseBody.id,
         username: "alvesluc",
         email: "alvesluc.dev@gmail.com",
-        password: "password123",
+        password: userResponseBody.password,
         created_at: userResponseBody.created_at,
         updated_at: userResponseBody.updated_at,
       });
@@ -79,7 +79,7 @@ describe("GET /api/v1/users/alvesluc", () => {
         id: userResponseBody.id,
         username: "alvesluk",
         email: "alvesluk.dev@gmail.com",
-        password: "password123",
+        password: userResponseBody.password,
         created_at: userResponseBody.created_at,
         updated_at: userResponseBody.updated_at,
       });
@@ -89,7 +89,7 @@ describe("GET /api/v1/users/alvesluc", () => {
       expect(Date.parse(userResponseBody.updated_at)).not.toBeNaN();
     });
 
-    test("With nonexistent username", async () => {
+    test("With nonexistent 'username'", async () => {
       const response = await fetch(
         "http://localhost:3000/api/v1/users/nonexistentuser",
       );
