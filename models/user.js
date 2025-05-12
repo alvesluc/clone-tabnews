@@ -44,7 +44,7 @@ async function validateUniqueUsername(username) {
   if (results.rowCount > 0) {
     throw new ValidationError({
       message: "Username already in use.",
-      action: "Please use a different username.",
+      action: "Please choose a different username.",
     });
   }
 }
@@ -67,8 +67,8 @@ async function validateUniqueEmail(email) {
 
   if (results.rowCount > 0) {
     throw new ValidationError({
-      message: "Email already exists.",
-      action: "Please use a different email.",
+      message: "Email already in use.",
+      action: "Please choose a different email.",
     });
   }
 }
@@ -154,12 +154,84 @@ async function runSelectQuery(username) {
   return results.rows[0];
 }
 
+async function update(username, userInputValues) {
+  const currentUser = await findOneByUsername(username);
+
+  if (isUpdatingUsername(currentUser.username, userInputValues)) {
+    await validateUniqueUsername(userInputValues.username);
+  }
+
+  if (isUpdatingEmail(currentUser.email, userInputValues)) {
+    await validateUniqueEmail(userInputValues.email);
+  }
+
+  if ("password" in userInputValues) {
+    await hashPasswordInObject(userInputValues);
+  }
+
+  const userWithNewValues = { ...currentUser, ...userInputValues };
+  const updatedUser = await runUpdateQuery(userWithNewValues);
+
+  return updatedUser;
+}
+
+function isUpdatingUsername(currentUsername, userInputValues) {
+  if (!("username" in userInputValues)) return false;
+
+  const isUsernameChanged = userInputValues.username !== currentUsername;
+
+  if (!isUsernameChanged) {
+    throw new ValidationError({
+      message: "Username already in use.",
+      action: "Please choose a different username.",
+    });
+  }
+
+  return true;
+}
+
+function isUpdatingEmail(currentEmail, userInputValues) {
+  if (!("email" in userInputValues)) return false;
+
+  const isEmailChanged = userInputValues.email !== currentEmail;
+
+  if (!isEmailChanged) {
+    throw new ValidationError({
+      message: "Email already in use.",
+      action: "Please choose a different email.",
+    });
+  }
+
+  return true;
+}
+
+async function runUpdateQuery(userWithNewValues) {
+  const { id, username, email, password } = userWithNewValues;
+
+  const results = await database.query({
+    text: `
+    UPDATE users 
+    SET 
+      username = $2,
+      email = $3,
+      password = $4,
+      updated_at = timezone('UTC', now())
+    WHERE id = $1
+    RETURNING *
+    ;`,
+    values: [id, username, email, password],
+  });
+
+  return results.rows[0];
+}
+
 /**
  * User service with methods for creating and finding users.
  *
  * @property {Function} create - Creates a new user.
  * @property {Function} findOneByUsername - Finds a user by username.
+ * @property {Function} update - Updates user information.
  */
-const user = { create, findOneByUsername };
+const user = { create, findOneByUsername, update };
 
 export default user;
