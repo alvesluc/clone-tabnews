@@ -1,5 +1,7 @@
 import database from "@/infra/database";
 import migrator from "@/models/migrator";
+import user from "@/models/user";
+import { faker } from "@faker-js/faker";
 import retry from "async-retry";
 
 /**
@@ -61,10 +63,28 @@ async function runMigrations() {
   }
 }
 
+async function createUser(userObject = {}) {
+  const { username, email, password } = userObject;
+
+  const fakeUsername = faker.internet.username();
+  const sanitizedUsername = fakeUsername.replace(/[._-]/g, "");
+
+  return await user.create({
+    username: username || sanitizedUsername,
+    email: email || getUniqueFakeEmail(),
+    password: password || "validPassword",
+  });
+}
+
+function getUniqueFakeEmail() {
+  return `${Date.now() + faker.internet.email()}`;
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
   runMigrations,
+  createUser,
 };
 
 export default orchestrator;
