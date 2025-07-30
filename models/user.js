@@ -121,7 +121,7 @@ async function runInsertQuery(userInputValues) {
  * @throws {NotFoundError} If the user is not found.
  */
 async function findOneByUsername(username) {
-  const userFound = await runSelectQuery(username);
+  const userFound = await runSelectUsernameQuery(username);
 
   return userFound;
 }
@@ -134,7 +134,7 @@ async function findOneByUsername(username) {
  * @returns {Promise<Object>} The user object if found.
  * @throws {NotFoundError} If no user is found.
  */
-async function runSelectQuery(username) {
+async function runSelectUsernameQuery(username) {
   const results = await database.query({
     text: `
     SELECT * FROM users
@@ -148,6 +148,48 @@ async function runSelectQuery(username) {
     throw new NotFoundError({
       message: "User not found.",
       action: "Please check the username and try again.",
+    });
+  }
+
+  return results.rows[0];
+}
+
+/**
+ * Finds a user by email.
+ *
+ * @async
+ * @param {string} email - The email to search for.
+ * @returns {Promise<Object>} The user object if found.
+ * @throws {NotFoundError} If the user is not found.
+ */
+async function findOneByEmail(email) {
+  const userFound = await runSelectEmailQuery(email);
+
+  return userFound;
+}
+
+/**
+ * Executes a query to find a user by email.
+ *
+ * @async
+ * @param {string} email - The email to search for.
+ * @returns {Promise<Object>} The user object if found.
+ * @throws {NotFoundError} If no user is found.
+ */
+async function runSelectEmailQuery(email) {
+  const results = await database.query({
+    text: `
+    SELECT * FROM users
+    WHERE LOWER(email) = LOWER($1)
+    LIMIT 1
+    ;`,
+    values: [email],
+  });
+
+  if (results.rowCount === 0) {
+    throw new NotFoundError({
+      message: "User not found.",
+      action: "Please check the email and try again.",
     });
   }
 
@@ -232,6 +274,6 @@ async function runUpdateQuery(userWithNewValues) {
  * @property {Function} findOneByUsername - Finds a user by username.
  * @property {Function} update - Updates user information.
  */
-const user = { create, findOneByUsername, update };
+const user = { create, findOneByUsername, findOneByEmail, update };
 
 export default user;

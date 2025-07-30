@@ -4,30 +4,26 @@
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-  pgm.createTable("users", {
+  pgm.createTable("sessions", {
     id: {
       type: "uuid",
       primaryKey: true,
       default: pgm.func("gen_random_uuid()"),
     },
-    username: {
-      // For reference, the GitHub username is limited to 39 characters.
-      type: "varchar(32)",
+    token: {
+      // Why 96? Filipe just said used Meta's Facebook token length as reference, as he couldn't find a consensus.
+      type: "varchar(96)",
+      notNull: true,
       unique: true,
+    },
+    user_id: {
+      type: "uuid",
       notNull: true,
     },
-    email: {
-      // Why 254? https://stackoverflow.com/a/1199238
-      type: "varchar(254)",
-      unique: true,
+    expires_at: {
+      type: "timestamptz",
       notNull: true,
     },
-    password: {
-      // Why 60? https://npmjs.com/package/bcrypt#hash-info
-      type: "varchar(60)",
-      notNull: true,
-    },
-    // Why timestamp with timezone? https://justatheory.com/2012/04/postgres-use-timestamptz/
     created_at: {
       type: "timestamptz",
       default: pgm.func("timezone('utc', now())"),
