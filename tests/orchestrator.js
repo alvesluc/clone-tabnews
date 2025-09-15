@@ -1,5 +1,6 @@
 import database from "@/infra/database";
 import migrator from "@/models/migrator";
+import session from "@/models/session";
 import user from "@/models/user";
 import { faker } from "@faker-js/faker";
 import retry from "async-retry";
@@ -80,11 +81,16 @@ function getUniqueFakeEmail() {
   return `${Date.now() + faker.internet.email()}`;
 }
 
+async function createSession(userId) {
+  return await session.create(userId);
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
   runMigrations,
   createUser,
+  createSession,
 };
 
 export default orchestrator;

@@ -112,6 +112,32 @@ async function runInsertQuery(userInputValues) {
   return results.rows[0];
 }
 
+async function findOneById(id) {
+  const userFound = await runSelectIdQuery(id);
+
+  return userFound;
+
+  async function runSelectIdQuery(id) {
+    const results = await database.query({
+      text: `
+    SELECT * FROM users
+    WHERE id = $1
+    LIMIT 1
+    ;`,
+      values: [id],
+    });
+
+    if (results.rowCount === 0) {
+      throw new NotFoundError({
+        message: "User not found.",
+        action: "Please check the id and try again.",
+      });
+    }
+
+    return results.rows[0];
+  }
+}
+
 /**
  * Finds a user by username.
  *
@@ -274,6 +300,6 @@ async function runUpdateQuery(userWithNewValues) {
  * @property {Function} findOneByUsername - Finds a user by username.
  * @property {Function} update - Updates user information.
  */
-const user = { create, findOneByUsername, findOneByEmail, update };
+const user = { create, findOneById, findOneByUsername, findOneByEmail, update };
 
 export default user;
